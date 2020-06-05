@@ -518,7 +518,7 @@ MonoBehaviour:
   space: 0
   jumpHeight: 2
   mouseInput: {x: 0, y: 0}
-  sensitivity: {x: 60, y: 60}
+  sensitivity: {x: 120, y: 120}
 --- !u!1001 &1269946426582863005
 PrefabInstance:
   m_ObjectHideFlags: 0

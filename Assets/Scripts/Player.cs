@@ -13,6 +13,8 @@ public class Player : MonoBehaviour
     public Vector2 mouseInput;
     public Vector2 sensitivity = Vector2.one;
 
+    public bool onGround = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -22,13 +24,18 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        Vector3 vel = body.velocity;
-        Vector3 targetVel = transform.rotation * input;
-        targetVel = PUtil.Orthogonalise(targetVel, transform.up) * maxVel;
-        Vector3 diff = targetVel - vel;
-        diff.y = 0f; //we ignore the y component because we assume that is the gravity
+        onGround = OnGround(0.45f, 0.2f);
 
-        body.AddForce(diff * body.mass / Time.fixedDeltaTime);
+        if (onGround)
+        {
+            Vector3 vel = body.velocity;
+            Vector3 targetVel = Quaternion.AngleAxis(transform.rotation.eulerAngles.y, Vector3.up) * input; //rotate the input around the character's up vector
+            targetVel = targetVel * maxVel; //make it the max velocity
+            Vector3 diff = targetVel - vel;
+            diff.y = 0f; //we ignore the y component because we assume that is the gravity
+
+            body.AddForce(diff * body.mass / Time.fixedDeltaTime);
+        }
 
         //mouseInput.x * sensitivity.y
         //-mouseInput.y * sensitivity.x
@@ -38,6 +45,15 @@ public class Player : MonoBehaviour
         rot.x = -mouseInput.y * sensitivity.y * Time.fixedDeltaTime;
         Quaternion q = Quaternion.Euler(rot);
         body.MoveRotation(transform.rotation * q); // rotate to the given rotation
+    }
+
+    public bool OnGround(float radius = 1f, float height = 0.1f)
+    {
+        bool onGround = false;
+        RaycastHit hit;
+        onGround = Physics.SphereCast(transform.position, radius, Vector3.down, out hit, height);
+        //if (onGround) //Debug.Log(hit.transform.name);
+        return onGround;
     }
 
     private void Update()
