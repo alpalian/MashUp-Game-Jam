@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
     public Vector3 input; //input
     public bool space;
 
+    public float jumpHeight = 2f;
     public Vector2 mouseInput;
     public Vector2 sensitivity = Vector2.one;
 
@@ -22,7 +23,8 @@ public class Player : MonoBehaviour
     void FixedUpdate()
     {
         Vector3 vel = body.velocity;
-        Vector3 targetVel = input * maxVel;
+        Vector3 targetVel = transform.rotation * input;
+        targetVel = PUtil.Orthogonalise(targetVel, transform.up) * maxVel;
         Vector3 diff = targetVel - vel;
         diff.y = 0f; //we ignore the y component because we assume that is the gravity
 
@@ -40,7 +42,7 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        if (space) Jump(2f);
+        if (space) Jump(jumpHeight);
     }
 
     void Jump(float height)
@@ -50,7 +52,8 @@ public class Player : MonoBehaviour
         vel.z = 0f;
 
 
-        body.AddForce(-(Physics.gravity + vel/Time.fixedDeltaTime + (Vector3.up * height)/Time.fixedDeltaTime) * body.mass);
+        //body.AddForce(-(Physics.gravity + vel/Time.fixedDeltaTime + (height*Vector3.up - Physics.gravity/2f) / Time.fixedDeltaTime) * body.mass);
+        body.AddForce((height * Vector3.up - Physics.gravity*0.5f) / Time.fixedDeltaTime * body.mass);
     }
 
 }
